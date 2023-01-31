@@ -6,13 +6,17 @@ const SimpleInput = (props) => {
   //state를 사용하는 방법 - 즉각적인 유효성 검증을 위해 키 입력마다 입력 값이 필요할 때
   const [enteredName, setEnteredName] = useState("");
   const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  const [enteredEmail, setEnteredEmail] = useState("");
+  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
 
   const enteredNameIsValid = enteredName.trim() !== "";
-  const nameInputIsValid = !enteredNameIsValid && enteredNameTouched;
+  const nameInputIsInValid = !enteredNameIsValid && enteredNameTouched;
+  const enteredEmailIsValid = enteredEmail.includes('@');
+  const emailInputIsInValid = !enteredEmailIsValid && enteredEmailTouched;
 
-  let formIsValid = false;
+  let formIsValid = false; 
 
-  if (enteredNameIsValid) {
+  if (enteredNameIsValid && enteredEmailIsValid) {
     formIsValid = true;
   }
   const nameInputChangeHandler = (event) => {
@@ -30,6 +34,13 @@ const SimpleInput = (props) => {
     //터치가 있었지만 enteredName이 공백일 경우 onBlur를 이용해 에러처리.
     setEnteredNameTouched(true);
   };
+
+  const emailInputChangeHandler = (event) => {
+    setEnteredEmail(event.target.value);
+  };
+  const emailInputBlurHandler = (evnet) => {
+    setEnteredEmailTouched(true);
+  };
   const formSubmissionHandler = (event) => {
     //여기서는 브라우저에서 작동하는 바닐라 자바스크립트를 다루고 있는데
     //기본적으로 브라우저는 이 폼 안에 있는 버튼을 통해서 폼이 제출되면
@@ -45,13 +56,16 @@ const SimpleInput = (props) => {
     //원하는 대로 작동하지 않게 되기 때문이다.
 
     setEnteredNameTouched(true);
+    setEnteredEmailTouched(true);
 
     if (!enteredNameIsValid) {
       return;
     }
-
+    if(!enteredEmailIsValid) {
+      return;
+    }
     console.log(enteredName);
-
+    console.log(enteredEmail);
     //ref를 사용하여 입력값을 받는 방법
     //const enteredValue = nameInputRef.current.value;
     //ref는 항상 current 프로퍼티를 갖는 객체이다.
@@ -62,11 +76,17 @@ const SimpleInput = (props) => {
     //=> 정상적으로 초기화하지만, 자바스크립트를 이용하여DOM을 변경하는것이므로 지양해야한다.
     setEnteredName("");
     setEnteredNameTouched(false);
+    setEnteredEmail("");
+    setEnteredEmailTouched(false);
+
     //form이 제출된 후 state를 초기화하여 에러가 뜨지 않게 한다.
   };
 
   //enteredNameIsValid가 참일때는 form-control클래스만주고 거짓일땐 invalid클래스를 추가하여 유효성검사할때 차이를 준다.
-  const nameInputClasses = nameInputIsValid
+  const nameInputClasses = nameInputIsInValid
+    ? "form-control invalid"
+    : "form-control";
+  const emailInputClasses = emailInputIsInValid
     ? "form-control invalid"
     : "form-control";
   return (
@@ -81,8 +101,21 @@ const SimpleInput = (props) => {
           onBlur={nameInputBlurHandler}
           value={enteredName}
         />
-        {nameInputIsValid && (
+        {nameInputIsInValid && (
           <p className="error-text">Name must not be empty.</p>
+        )}
+      </div>
+      <div className={emailInputClasses}>
+        <label htmlFor="email">Your E-Mail</label>
+        <input
+          type="email"
+          id="email"
+          onChange={emailInputChangeHandler}
+          onBlur={emailInputBlurHandler}
+          value={enteredEmail}
+        />
+        {emailInputIsInValid && (
+          <p className="error-text">Please enter a valid email.</p>
         )}
       </div>
       <div className="form-actions">
