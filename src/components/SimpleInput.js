@@ -1,29 +1,36 @@
-import { useState, useRef, useEffect } from "react";
 import useInput from "../hooks/use-input";
+
 const SimpleInput = (props) => {
   const {
     value: enteredName,
     isValid: enteredNameIsValid,
     hasError: nameInputHasError,
-    valueChangeHandler: nameChangeHandler,
+    valueInputChangeHandler: nameChangeHandler,
     inputBlurHandler: nameBlurHandler,
     reset: resetNameInput,
   } = useInput((value) => value.trim() !== "");
-
+  const {
+    value: enteredEmail,
+    isValid: enteredEmailIsValid,
+    hasError: emailInputHasError,
+    valueInputChangeHandler: emailChangerHandler,
+    inputBlurHandler: emailBlurHandler,
+    reset: resetEmailInput,
+  } = useInput((value) => value.includes("@"));
   //ref를 사용하는 방법 - 한번만 유효성 검증을 할 때
   //const nameInputRef = useRef();
   //state를 사용하는 방법 - 즉각적인 유효성 검증을 위해 키 입력마다 입력 값이 필요할 때
-  
+
   //사용자 정의 훅 사용
   // const [enteredName, setEnteredName] = useState("");
   // const [enteredNameTouched, setEnteredNameTouched] = useState(false);
-  const [enteredEmail, setEnteredEmail] = useState("");
-  const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
+  // const [enteredEmail, setEnteredEmail] = useState("");
+  // const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
 
   // const enteredNameIsValid = enteredName.trim() !== "";
   // const nameInputIsInValid = !enteredNameIsValid && enteredNameTouched;
-  const enteredEmailIsValid = enteredEmail.includes("@");
-  const emailInputIsInValid = !enteredEmailIsValid && enteredEmailTouched;
+  // const enteredEmailIsValid = enteredEmail.includes("@");
+  // const emailInputIsInValid = !enteredEmailIsValid && enteredEmailTouched;
 
   let formIsValid = false;
 
@@ -46,12 +53,12 @@ const SimpleInput = (props) => {
   //   setEnteredNameTouched(true);
   // };
 
-  const emailInputChangeHandler = (event) => {
-    setEnteredEmail(event.target.value);
-  };
-  const emailInputBlurHandler = (evnet) => {
-    setEnteredEmailTouched(true);
-  };
+  // const emailInputChangeHandler = (event) => {
+  //   setEnteredEmail(event.target.value);
+  // };
+  // const emailInputBlurHandler = (evnet) => {
+  //   setEnteredEmailTouched(true);
+  // };
   const formSubmissionHandler = (event) => {
     //여기서는 브라우저에서 작동하는 바닐라 자바스크립트를 다루고 있는데
     //기본적으로 브라우저는 이 폼 안에 있는 버튼을 통해서 폼이 제출되면
@@ -88,9 +95,9 @@ const SimpleInput = (props) => {
     // setEnteredName("");
     // setEnteredNameTouched(false);
     resetNameInput();
-    setEnteredEmail("");
-    setEnteredEmailTouched(false);
-
+    // setEnteredEmail("");
+    // setEnteredEmailTouched(false);
+    resetEmailInput();
     //form이 제출된 후 state를 초기화하여 에러가 뜨지 않게 한다.
   };
 
@@ -98,7 +105,7 @@ const SimpleInput = (props) => {
   const nameInputClasses = nameInputHasError
     ? "form-control invalid"
     : "form-control";
-  const emailInputClasses = emailInputIsInValid
+  const emailInputClasses = emailInputHasError
     ? "form-control invalid"
     : "form-control";
   return (
@@ -122,11 +129,11 @@ const SimpleInput = (props) => {
         <input
           type="email"
           id="email"
-          onChange={emailInputChangeHandler}
-          onBlur={emailInputBlurHandler}
+          onChange={emailChangerHandler}
+          onBlur={emailBlurHandler}
           value={enteredEmail}
         />
-        {emailInputIsInValid && (
+        {emailInputHasError && (
           <p className="error-text">Please enter a valid email.</p>
         )}
       </div>
