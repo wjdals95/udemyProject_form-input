@@ -1,15 +1,29 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 
 const SimpleInput = (props) => {
   //ref를 사용하는 방법 - 한번만 유효성 검증을 할 때
   const nameInputRef = useRef();
   //state를 사용하는 방법 - 즉각적인 유효성 검증을 위해 키 입력마다 입력 값이 필요할 때
   const [enteredName, setEnteredName] = useState("");
+  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
+  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
 
+  useEffect(() => {
+    if (enteredNameIsValid) {
+      console.log("Name Input is valid!");
+    }
+  }, [enteredNameIsValid]);
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
   };
-
+  const nameInputBlurHandler = (event) => {
+    setEnteredNameTouched(true);
+    
+    if (enteredName.trim() === "") {
+      setEnteredNameIsValid(false);
+      return;
+    }
+  };
   const formSubmissionHandler = (event) => {
     //여기서는 브라우저에서 작동하는 바닐라 자바스크립트를 다루고 있는데
     //기본적으로 브라우저는 이 폼 안에 있는 버튼을 통해서 폼이 제출되면
@@ -23,31 +37,45 @@ const SimpleInput = (props) => {
     //이렇게 하지 않고 HTTP 요청이 보내진다면 결국 페이지가 새로고침될텐데
     //이 경우에는 리액트 앱들이 전부 재시작되면서 모든 상태가 없어지게 되고
     //원하는 대로 작동하지 않게 되기 때문이다.
-    if(enteredName.trim() ===''){
-      return
+
+    setEnteredNameTouched(true);
+
+    if (enteredName.trim() === "") {
+      setEnteredNameIsValid(false);
+      return;
     }
+    setEnteredNameIsValid(true);
     console.log(enteredName);
     const enteredValue = nameInputRef.current.value;
     //ref는 항상 current 프로퍼티를 갖는 객체이다.
     console.log(enteredValue);
-    
+
     //입력값 초기화
-    //nameInputRef.current.value =''; 
+    //nameInputRef.current.value ='';
     //=> 정상적으로 초기화하지만, 자바스크립트를 이용하여DOM을 변경하는것이므로 지양해야한다.
     setEnteredName("");
   };
 
+  const nameInputIsValid = !enteredNameIsValid && enteredNameTouched;
+  //enteredNameIsValid가 참일때는 form-control클래스만주고 거짓일땐 invalid클래스를 추가하여 유효성검사할때 차이를 준다.
+  const nameInputClasses = nameInputIsValid
+    ? "form-control invalid"
+    : "form-control";
   return (
     <form onSubmit={formSubmissionHandler}>
-      <div className="form-control">
+      <div className={nameInputClasses}>
         <label htmlFor="name">Your Name</label>
         <input
           ref={nameInputRef}
           type="text"
           id="name"
           onChange={nameInputChangeHandler}
+          onBlur={nameInputBlurHandler}
           value={enteredName}
         />
+        {nameInputIsValid && (
+          <p className="error-text">Name must not be empty.</p>
+        )}
       </div>
       <div className="form-actions">
         <button>Submit</button>
