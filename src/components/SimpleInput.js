@@ -1,39 +1,50 @@
 import { useState, useRef, useEffect } from "react";
-
+import useInput from "../hooks/use-input";
 const SimpleInput = (props) => {
+  const {
+    value: enteredName,
+    isValid: enteredNameIsValid,
+    hasError: nameInputHasError,
+    valueChangeHandler: nameChangeHandler,
+    inputBlurHandler: nameBlurHandler,
+    reset: resetNameInput,
+  } = useInput((value) => value.trim() !== "");
+
   //ref를 사용하는 방법 - 한번만 유효성 검증을 할 때
   //const nameInputRef = useRef();
   //state를 사용하는 방법 - 즉각적인 유효성 검증을 위해 키 입력마다 입력 값이 필요할 때
-  const [enteredName, setEnteredName] = useState("");
-  const [enteredNameTouched, setEnteredNameTouched] = useState(false);
+  
+  //사용자 정의 훅 사용
+  // const [enteredName, setEnteredName] = useState("");
+  // const [enteredNameTouched, setEnteredNameTouched] = useState(false);
   const [enteredEmail, setEnteredEmail] = useState("");
   const [enteredEmailTouched, setEnteredEmailTouched] = useState(false);
 
-  const enteredNameIsValid = enteredName.trim() !== "";
-  const nameInputIsInValid = !enteredNameIsValid && enteredNameTouched;
-  const enteredEmailIsValid = enteredEmail.includes('@');
+  // const enteredNameIsValid = enteredName.trim() !== "";
+  // const nameInputIsInValid = !enteredNameIsValid && enteredNameTouched;
+  const enteredEmailIsValid = enteredEmail.includes("@");
   const emailInputIsInValid = !enteredEmailIsValid && enteredEmailTouched;
 
-  let formIsValid = false; 
+  let formIsValid = false;
 
   if (enteredNameIsValid && enteredEmailIsValid) {
     formIsValid = true;
   }
-  const nameInputChangeHandler = (event) => {
-    setEnteredName(event.target.value);
+  // const nameInputChangeHandler = (event) => {
+  //   setEnteredName(event.target.value);
 
-    // if (event.target.value.trim() !== "") {
-    //   //enteredName을 쓰지 않는 이유는 이러한 상태들은 리액트에서 비동기적으로
-    //   //처리되므로 즉각적으로 반영되지 않아서 다음 줄이 실행될 때에 enteredName을
-    //   //사용하면 최신의 상태를 반영하지 못하고 이전의 상태를 참고하게 된다. 그러므로 event.target.value를 사용.
-    //   setEnteredNameIsValid(true);
-    // }
-  };
+  //   // if (event.target.value.trim() !== "") {
+  //   //   //enteredName을 쓰지 않는 이유는 이러한 상태들은 리액트에서 비동기적으로
+  //   //   //처리되므로 즉각적으로 반영되지 않아서 다음 줄이 실행될 때에 enteredName을
+  //   //   //사용하면 최신의 상태를 반영하지 못하고 이전의 상태를 참고하게 된다. 그러므로 event.target.value를 사용.
+  //   //   setEnteredNameIsValid(true);
+  //   // }
+  // };
 
-  const nameInputBlurHandler = (event) => {
-    //터치가 있었지만 enteredName이 공백일 경우 onBlur를 이용해 에러처리.
-    setEnteredNameTouched(true);
-  };
+  // const nameInputBlurHandler = (event) => {
+  //   //터치가 있었지만 enteredName이 공백일 경우 onBlur를 이용해 에러처리.
+  //   setEnteredNameTouched(true);
+  // };
 
   const emailInputChangeHandler = (event) => {
     setEnteredEmail(event.target.value);
@@ -55,13 +66,13 @@ const SimpleInput = (props) => {
     //이 경우에는 리액트 앱들이 전부 재시작되면서 모든 상태가 없어지게 되고
     //원하는 대로 작동하지 않게 되기 때문이다.
 
-    setEnteredNameTouched(true);
-    setEnteredEmailTouched(true);
+    // setEnteredNameTouched(true);
+    // setEnteredEmailTouched(true);
 
     if (!enteredNameIsValid) {
       return;
     }
-    if(!enteredEmailIsValid) {
+    if (!enteredEmailIsValid) {
       return;
     }
     console.log(enteredName);
@@ -74,8 +85,9 @@ const SimpleInput = (props) => {
     //입력값 초기화
     //nameInputRef.current.value ='';
     //=> 정상적으로 초기화하지만, 자바스크립트를 이용하여DOM을 변경하는것이므로 지양해야한다.
-    setEnteredName("");
-    setEnteredNameTouched(false);
+    // setEnteredName("");
+    // setEnteredNameTouched(false);
+    resetNameInput();
     setEnteredEmail("");
     setEnteredEmailTouched(false);
 
@@ -83,7 +95,7 @@ const SimpleInput = (props) => {
   };
 
   //enteredNameIsValid가 참일때는 form-control클래스만주고 거짓일땐 invalid클래스를 추가하여 유효성검사할때 차이를 준다.
-  const nameInputClasses = nameInputIsInValid
+  const nameInputClasses = nameInputHasError
     ? "form-control invalid"
     : "form-control";
   const emailInputClasses = emailInputIsInValid
@@ -97,11 +109,11 @@ const SimpleInput = (props) => {
           // ref={nameInputRef}
           type="text"
           id="name"
-          onChange={nameInputChangeHandler}
-          onBlur={nameInputBlurHandler}
+          onChange={nameChangeHandler}
+          onBlur={nameBlurHandler}
           value={enteredName}
         />
-        {nameInputIsInValid && (
+        {nameInputHasError && (
           <p className="error-text">Name must not be empty.</p>
         )}
       </div>
