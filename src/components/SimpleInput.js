@@ -2,27 +2,28 @@ import { useState, useRef, useEffect } from "react";
 
 const SimpleInput = (props) => {
   //ref를 사용하는 방법 - 한번만 유효성 검증을 할 때
-  const nameInputRef = useRef();
+  //const nameInputRef = useRef();
   //state를 사용하는 방법 - 즉각적인 유효성 검증을 위해 키 입력마다 입력 값이 필요할 때
   const [enteredName, setEnteredName] = useState("");
-  const [enteredNameIsValid, setEnteredNameIsValid] = useState(false);
   const [enteredNameTouched, setEnteredNameTouched] = useState(false);
 
-  useEffect(() => {
-    if (enteredNameIsValid) {
-      console.log("Name Input is valid!");
-    }
-  }, [enteredNameIsValid]);
+  const enteredNameIsValid = enteredName.trim() !== "";
+  const nameInputIsValid = !enteredNameIsValid && enteredNameTouched;
+
   const nameInputChangeHandler = (event) => {
     setEnteredName(event.target.value);
+
+    // if (event.target.value.trim() !== "") {
+    //   //enteredName을 쓰지 않는 이유는 이러한 상태들은 리액트에서 비동기적으로
+    //   //처리되므로 즉각적으로 반영되지 않아서 다음 줄이 실행될 때에 enteredName을
+    //   //사용하면 최신의 상태를 반영하지 못하고 이전의 상태를 참고하게 된다. 그러므로 event.target.value를 사용.
+    //   setEnteredNameIsValid(true);
+    // }
   };
+
   const nameInputBlurHandler = (event) => {
+    //터치가 있었지만 enteredName이 공백일 경우 onBlur를 이용해 에러처리.
     setEnteredNameTouched(true);
-    
-    if (enteredName.trim() === "") {
-      setEnteredNameIsValid(false);
-      return;
-    }
   };
   const formSubmissionHandler = (event) => {
     //여기서는 브라우저에서 작동하는 바닐라 자바스크립트를 다루고 있는데
@@ -40,23 +41,25 @@ const SimpleInput = (props) => {
 
     setEnteredNameTouched(true);
 
-    if (enteredName.trim() === "") {
-      setEnteredNameIsValid(false);
+    if (!enteredNameIsValid) {
       return;
     }
-    setEnteredNameIsValid(true);
+
     console.log(enteredName);
-    const enteredValue = nameInputRef.current.value;
+
+    //ref를 사용하여 입력값을 받는 방법
+    //const enteredValue = nameInputRef.current.value;
     //ref는 항상 current 프로퍼티를 갖는 객체이다.
-    console.log(enteredValue);
+    //console.log(enteredValue);
 
     //입력값 초기화
     //nameInputRef.current.value ='';
     //=> 정상적으로 초기화하지만, 자바스크립트를 이용하여DOM을 변경하는것이므로 지양해야한다.
     setEnteredName("");
+    setEnteredNameTouched(false);
+    //form이 제출된 후 state를 초기화하여 에러가 뜨지 않게 한다.
   };
 
-  const nameInputIsValid = !enteredNameIsValid && enteredNameTouched;
   //enteredNameIsValid가 참일때는 form-control클래스만주고 거짓일땐 invalid클래스를 추가하여 유효성검사할때 차이를 준다.
   const nameInputClasses = nameInputIsValid
     ? "form-control invalid"
@@ -66,7 +69,7 @@ const SimpleInput = (props) => {
       <div className={nameInputClasses}>
         <label htmlFor="name">Your Name</label>
         <input
-          ref={nameInputRef}
+          // ref={nameInputRef}
           type="text"
           id="name"
           onChange={nameInputChangeHandler}
