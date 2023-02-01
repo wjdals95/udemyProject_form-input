@@ -1,9 +1,8 @@
 import useInputs from "../hooks/use-inputs";
 
 const BasicForm = (props) => {
-
-  const isNotEmpty = (value) => value.trim() !== ""
-  const isEmail = (value) => value.includes('@')
+  const isNotEmpty = (value) => value.trim() !== "";
+  const isEmail = (value) => value.includes("@");
   const {
     value: enteredFirstName,
     isValid: enteredFirstNameIsValid,
@@ -33,14 +32,18 @@ const BasicForm = (props) => {
 
   //button에게 위의 Input칸에 공백이 있을 경우 disabled시키기
   let formIsValid = false;
-  if (enteredFirstNameIsValid && enteredLastNameIsValid && enteredEmailIsValid) {
+  if (
+    enteredFirstNameIsValid &&
+    enteredLastNameIsValid &&
+    enteredEmailIsValid
+  ) {
     formIsValid = true;
   }
 
   const formSubmissionHandler = (event) => {
     event.preventDefault();
 
-    if(!formIsValid){
+    if (!formIsValid) {
       return;
     }
 
@@ -51,11 +54,11 @@ const BasicForm = (props) => {
     if (!enteredLastNameIsValid) {
       return;
     }
-    if(!enteredEmailIsValid){
+    if (!enteredEmailIsValid) {
       return;
     }
 
-    console.log(Submitted!);
+    console.log("Submitted!");
     console.log(enteredFirstName, enteredLastName, enteredEmail);
 
     resetFirstNameInput();
@@ -69,7 +72,7 @@ const BasicForm = (props) => {
   const lastNameInputClasses = lastNameInputHasError
     ? "form-control invalid"
     : "form-control";
-    const emailInputClasses = emailInputHasError
+  const emailInputClasses = emailInputHasError
     ? "form-control invalid"
     : "form-control";
   return (
