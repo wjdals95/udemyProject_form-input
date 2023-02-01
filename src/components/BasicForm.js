@@ -1,85 +1,75 @@
-import { useState } from "react";
+import useInputs from "../hooks/use-inputs";
 
 const BasicForm = (props) => {
-  const [enteredFirstName, setEntererFirstName] = useState("");
-  const [firstNameIsTouched, setFirstNameIsTouched] = useState(false);
-  const [enteredLastName, setEntererLastName] = useState("");
-  const [lastNameIsTouched, setLastNameIsTouched] = useState(false);
-  const [enteredEmail, setEntererEmail] = useState("");
-  const [emailIsTouched, setEmailIsTouched] = useState(false);
 
-  const firstNameInputChangeHandler = (event) => {
-    setEntererFirstName(event.target.value);
-  };
-  const lastNameInputChangeHandler = (event) => {
-    setEntererLastName(event.target.value);
-  };
-  const emailInputChangeHandler = (event) => {
-    setEntererEmail(event.target.value);
-  };
+  const isNotEmpty = (value) => value.trim() !== ""
+  const isEmail = (value) => value.includes('@')
+  const {
+    value: enteredFirstName,
+    isValid: enteredFirstNameIsValid,
+    hasError: firstNameInputHasError,
+    valueInputChangeHandler: firstNameChangeHandler,
+    inputBlurHandler: firstNameBlurHandler,
+    reset: resetFirstNameInput,
+  } = useInputs(isNotEmpty);
+
+  const {
+    value: enteredLastName,
+    isValid: enteredLastNameIsValid,
+    hasError: lastNameInputHasError,
+    valueInputChangeHandler: lastNameChangeHandler,
+    inputBlurHandler: lastNameBlurHandler,
+    reset: resetLastNameInput,
+  } = useInputs(isNotEmpty);
+
+  const {
+    value: enteredEmail,
+    isValid: enteredEmailIsValid,
+    hasError: emailInputHasError,
+    valueInputChangeHandler: emailChangeHandler,
+    inputBlurHandler: emailBlurHandler,
+    reset: resetEmailInput,
+  } = useInputs(isEmail);
 
   //button에게 위의 Input칸에 공백이 있을 경우 disabled시키기
   let formIsValid = false;
-  if (enteredFirstName && enteredLastName && enteredEmail) {
+  if (enteredFirstNameIsValid && enteredLastNameIsValid && enteredEmailIsValid) {
     formIsValid = true;
   }
-  //인풋에 들어왔다가 나가면 true로 변경하여 빈공백으로 나가면 에러가 뜨게하기
-  const firstNameInputBlurHandler = (event) => {
-    setFirstNameIsTouched(true);
-  };
-  const lastNameInputBlurHandler = (event) => {
-    setLastNameIsTouched(true);
-  };
-  const emailInputBlurHandler = (event) => {
-    setEmailIsTouched(true);
-  };
 
   const formSubmissionHandler = (event) => {
     event.preventDefault();
 
-    setFirstNameIsTouched(true);
-    setLastNameIsTouched(true);
-    setEmailIsTouched(true);
-
-    if (!enteredFirstName) {
-      return;
-    }
-    if (!enteredLastName) {
-      return;
-    }
-    if(!enteredEmail){
+    if(!formIsValid){
       return;
     }
 
-    console.log(enteredFirstName);
-    console.log(enteredLastName);
-    console.log(enteredEmail);
+    //formIsValid에 의해 버튼이 비활성하 되므로 사용하지 않아도 된다.
+    if (!enteredFirstNameIsValid) {
+      return;
+    }
+    if (!enteredLastNameIsValid) {
+      return;
+    }
+    if(!enteredEmailIsValid){
+      return;
+    }
 
-    setEntererFirstName("");
-    setFirstNameIsTouched(false);
-    setEntererLastName("");
-    setLastNameIsTouched(false);
-    setEntererEmail("");
-    setEmailIsTouched(false);
+    console.log(Submitted!);
+    console.log(enteredFirstName, enteredLastName, enteredEmail);
+
+    resetFirstNameInput();
+    resetLastNameInput();
+    resetEmailInput();
   };
 
-  const enteredFirstNameIsValid = enteredFirstName.trim() !== "";
-  const firstNameInputIsInValid =
-    !enteredFirstNameIsValid && firstNameIsTouched;
-
-  const enteredLastNameIsValid = enteredLastName.trim() !== "";
-  const lastNameInputIsInValid = !enteredLastNameIsValid && lastNameIsTouched;
-
-  const enteredEamilIsValid = enteredEmail.trim() !== "";
-  const emailInputIsInValid = !enteredEamilIsValid && emailIsTouched;
-
-  const firstNameInputClasses = firstNameInputIsInValid
+  const firstNameInputClasses = firstNameInputHasError
     ? "form-control invalid"
     : "form-control";
-  const lastNameInputClasses = lastNameInputIsInValid
+  const lastNameInputClasses = lastNameInputHasError
     ? "form-control invalid"
     : "form-control";
-    const emailInputClasses = emailInputIsInValid
+    const emailInputClasses = emailInputHasError
     ? "form-control invalid"
     : "form-control";
   return (
@@ -90,12 +80,12 @@ const BasicForm = (props) => {
           <input
             type="text"
             id="name"
-            onChange={firstNameInputChangeHandler}
-            onBlur={firstNameInputBlurHandler}
+            onChange={firstNameChangeHandler}
+            onBlur={firstNameBlurHandler}
             value={enteredFirstName}
           />
-          {firstNameInputIsInValid && (
-            <p className="error-text">First Name must not be empty.</p>
+          {firstNameInputHasError && (
+            <p className="error-text">Please enter a first name.</p>
           )}
         </div>
         <div className={lastNameInputClasses}>
@@ -103,12 +93,12 @@ const BasicForm = (props) => {
           <input
             type="text"
             id="name"
-            onChange={lastNameInputChangeHandler}
-            onBlur={lastNameInputBlurHandler}
+            onChange={lastNameChangeHandler}
+            onBlur={lastNameBlurHandler}
             value={enteredLastName}
           />
-          {lastNameInputIsInValid && (
-            <p className="error-text">Last Name must not be empty.</p>
+          {lastNameInputHasError && (
+            <p className="error-text">Please enter a last name.</p>
           )}
         </div>
       </div>
@@ -117,12 +107,12 @@ const BasicForm = (props) => {
         <input
           type="text"
           id="name"
-          onChange={emailInputChangeHandler}
-          onBlur={emailInputBlurHandler}
+          onChange={emailChangeHandler}
+          onBlur={emailBlurHandler}
           value={enteredEmail}
         />
-        {emailInputIsInValid && (
-          <p className="error-text">Please enter a valid email.</p>
+        {emailInputHasError && (
+          <p className="error-text">Please enter a valid email address.</p>
         )}
       </div>
       <div className="form-actions">
